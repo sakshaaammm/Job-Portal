@@ -13,13 +13,18 @@ const useFetch = (cb, options = {}) => {
     setError(null);
 
     try {
-      const supabaseAccessToken = await session.getToken({
-        template: "supabase",
-      });
-      const response = await cb(supabaseAccessToken, options, ...args);
-      setData(response);
-      setError(null);
+      if (session) {
+        const supabaseAccessToken = await session.getToken({
+          template: "supabase",
+        });
+        const response = await cb(supabaseAccessToken, options, ...args);
+        setData(response);
+        setError(null);
+      } else {
+        throw new Error("No active session found");
+      }
     } catch (error) {
+      console.error("useFetch error:", error);
       setError(error);
     } finally {
       setLoading(false);

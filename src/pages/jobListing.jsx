@@ -27,7 +27,7 @@ const JobListing = () => {
   const { isLoaded } = useUser();
 
   const {
-    // loading: loadingCompanies,
+    loading: loadingCompanies,
     data: companies,
     fn: fnCompanies,
   } = useFetch(getCompanies);
@@ -46,13 +46,11 @@ const JobListing = () => {
     if (isLoaded) {
       fnCompanies();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded]);
+  }, [isLoaded, fnCompanies]);
 
   useEffect(() => {
     if (isLoaded) fnJobs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, location, company_id, searchQuery]);
+  }, [isLoaded, location, company_id, searchQuery, fnJobs]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -69,6 +67,10 @@ const JobListing = () => {
   };
 
   if (!isLoaded) {
+    return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />;
+  }
+
+  if (loadingCompanies) {
     return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />;
   }
 
@@ -119,13 +121,15 @@ const JobListing = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {companies?.map(({ name, id }) => {
+              {companies && companies.length > 0 ? companies.map(({ name, id }) => {
                 return (
                   <SelectItem key={name} value={id}>
                     {name}
                   </SelectItem>
                 );
-              })}
+              }) : (
+                <SelectItem value="" disabled>No companies available</SelectItem>
+              )}
             </SelectGroup>
           </SelectContent>
         </Select>

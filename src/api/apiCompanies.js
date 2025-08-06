@@ -3,14 +3,23 @@ import supabaseClient, { supabaseUrl } from "@/utils/supabase";
 // Fetch Companies
 export async function getCompanies(token) {
   const supabase = await supabaseClient(token);
-  const { data, error } = await supabase.from("companies").select("*");
+  
+  try {
+    const { data, error } = await supabase
+      .from("companies")
+      .select("*")
+      .order("name");
 
-  if (error) {
-    console.error("Error fetching Companies:", error);
-    return null;
+    if (error) {
+      console.error("Error fetching Companies:", error);
+      throw new Error(`Failed to fetch companies: ${error.message}`);
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error("Error in getCompanies:", err);
+    throw err;
   }
-
-  return data;
 }
 
 // Add Company
